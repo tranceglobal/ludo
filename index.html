@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>KaviLudo - Play and Earn KAVI</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07071a;--card:#14143a;--bdr:rgba(255,215,0,.2);
+  --gold:#FFD700;--gold2:#FFA500;--cyan:#00E5FF;
+  --red:#FF4444;--grn:#2ED47A;--yel:#FFE500;--blu:#4FC3F7;
+  --txt:#E8E8FF;--mu:#6868A0;
+  --CRED:#FF4444;--CGRN:#2ED47A;--CYEL:#FFE500;--CBLU:#4FC3F7;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+  color:var(--txt);font-family:'Rajdhani',sans-serif;
+  -webkit-tap-highlight-color:transparent;user-select:none}
+.sc{position:absolute;inset:0;display:none;flex-direction:column;
+  align-items:center;overflow-y:auto;padding-bottom:28px}
+.sc.on{display:flex}
+.hdr{width:100%;max-width:500px;display:flex;align-items:center;
+  justify-content:space-between;padding:9px 14px;background:rgba(0,0,0,.75);
+  border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:50;backdrop-filter:blur(10px)}
+.logo{font-family:'Exo 2',sans-serif;font-weight:900;font-size:1.05rem;
+  background:linear-gradient(120deg,var(--gold),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wpill{font-size:.7rem;color:var(--grn);background:rgba(46,212,122,.1);
+  border:1px solid rgba(46,212,122,.3);padding:4px 10px;border-radius:20px;
+  cursor:pointer;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:16px;
+  padding:15px;width:calc(100% - 24px);max-width:470px;margin:6px 0}
+.ct{font-family:'Exo 2',sans-serif;font-size:.75rem;color:var(--gold);
+  text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+  padding:12px;border:none;border-radius:11px;font-family:'Rajdhani',sans-serif;
+  font-size:.95rem;font-weight:700;cursor:pointer;transition:all .15s}
+.btn:active{transform:scale(.95)}.btn:disabled{opacity:.35;pointer-events:none}
+.bgold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000}
+.bout{background:transparent;border:1.5px solid var(--bdr);color:var(--txt)}
+.bteal{background:linear-gradient(135deg,#00606e,#00939b);color:#fff}
+.bred{background:linear-gradient(135deg,#6b0f0f,#b03030);color:#fff}
+.bsm{padding:6px 12px;width:auto;font-size:.82rem;border-radius:9px}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+.inp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);
+  border-radius:9px;padding:10px 12px;color:var(--txt);font-family:'Rajdhani',sans-serif;
+  font-size:.95rem;outline:none;margin-bottom:8px}
+.inp:focus{border-color:var(--gold)}
+.lbl{font-size:.75rem;color:var(--mu);margin-bottom:4px;display:block}
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;
+  display:none;align-items:flex-end;justify-content:center}
+.mov.on{display:flex}
+.modal{background:#131330;border:1px solid var(--bdr);border-radius:20px 20px 0 0;
+  padding:18px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto;
+  animation:up .22s ease}
+@keyframes up{from{transform:translateY(50px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.mhdr{font-family:'Exo 2',sans-serif;font-size:.95rem;color:var(--gold);
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.mcls{background:none;border:none;color:var(--mu);font-size:1.2rem;cursor:pointer}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--card);border:1px solid var(--bdr);border-radius:11px;
+  padding:8px 18px;font-size:.82rem;z-index:500;transition:transform .25s ease;
+  max-width:calc(100% - 28px);text-align:center;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--grn);color:var(--grn)}
+.toast.er{border-color:var(--red);color:var(--red)}
+.ldr{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.ldr.on{display:flex}
+.spin{width:40px;height:40px;border:3px solid rgba(255,215,0,.2);
+  border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ftbl{background:rgba(0,0,0,.35);border-radius:9px;padding:10px;margin:7px 0}
+.fr{display:flex;justify-content:space-between;padding:4px 0;
+  font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.fr:last-child{border-bottom:none}
+.fr.win{color:var(--gold);font-weight:700;padding-top:7px}
+.dvdr{height:1px;background:rgba(255,255,255,.06);margin:10px 0}
+.tg{color:var(--gold)}.tcy{color:var(--cyan)}.tr{color:var(--red)}
+.tgrn{color:var(--grn)}.tmu{color:var(--mu)}
+.tsm{font-size:.8rem}.txs{font-size:.7rem}.tc{text-align:center}
+.fb{display:flex;justify-content:space-between;align-items:center}
+.mb8{margin-bottom:8px}.mt8{margin-top:8px}.mt12{margin-top:12px}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.s{position:absolute;border-radius:50%;background:#fff;animation:tw var(--d,3s) infinite var(--dl,0s)}
+@keyframes tw{0%,100%{opacity:.06}50%{opacity:.55}}
+
+/* ---- Screen 1: Wallet ---- */
+#sw{background:radial-gradient(ellipse at 50% -10%,#1a0e60 0%,var(--bg) 65%);
+  justify-content:center;align-items:center}
+.hlogo{font-family:'Exo 2',sans-serif;font-weight:900;font-size:2.8rem;text-align:center;
+  background:linear-gradient(135deg,var(--gold) 20%,var(--cyan) 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,215,0,.4))}
+.bscb{display:inline-flex;align-items:center;gap:5px;background:rgba(243,186,47,.1);
+  border:1px solid rgba(243,186,47,.28);border-radius:20px;padding:4px 12px;
+  font-size:.7rem;color:#F3BA2F;margin:8px 0 16px}
+.bscd{width:6px;height:6px;border-radius:50%;background:#F3BA2F;animation:blink 1.8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  width:calc(100% - 24px);max-width:360px;margin:0 0 18px}
+.feat{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.13);
+  border-radius:11px;padding:11px 7px;text-align:center;font-size:.8rem}
+.fi{font-size:1.25rem;display:block;margin-bottom:4px}
+.wbtns{width:calc(100% - 24px);max-width:360px;display:flex;flex-direction:column;gap:8px}
+
+/* ---- Screen 2: Dashboard ---- */
+.balcard{background:linear-gradient(135deg,#110e38,#1f0e5a);
+  border-color:rgba(139,92,246,.4);text-align:center;padding:18px}
+.balmain{font-family:'Exo 2',sans-serif;font-size:2.4rem;font-weight:900;color:var(--gold)}
+.balsub{font-size:.82rem;color:var(--mu);margin-top:2px}
+.balgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.bali{background:rgba(0,0,0,.3);border-radius:9px;padding:8px;text-align:center}
+.balv{font-weight:700;font-size:.95rem;color:var(--cyan)}
+.ball{font-size:.68rem;color:var(--mu)}
+.qas{display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  width:calc(100% - 24px);max-width:470px;margin:5px 0}
+.qa{padding:15px 9px;border-radius:13px;text-align:center;cursor:pointer;
+  border:1px solid var(--bdr);background:var(--card);transition:all .15s}
+.qa:active{transform:scale(.92)}
+.qi{font-size:1.6rem;display:block;margin-bottom:5px}
+.ql{font-size:.8rem;font-weight:700}.qd{font-size:.68rem;color:var(--mu);margin-top:2px}
+
+/* ---- Lock Banner ---- */
+.lock-banner{width:calc(100% - 24px);max-width:470px;
+  background:rgba(255,68,68,.1);border:1.5px solid rgba(255,68,68,.4);
+  border-radius:14px;padding:14px 16px;margin:6px 0;display:none}
+.lock-banner.on{display:block}
+.lb-title{font-family:'Exo 2',sans-serif;font-size:.88rem;color:var(--red);margin-bottom:6px;font-weight:700}
+.lb-desc{font-size:.8rem;color:rgba(255,180,180,.8);line-height:1.5}
+.lb-code{font-family:'Exo 2',sans-serif;font-size:1.1rem;color:var(--gold);
+  letter-spacing:4px;margin-top:8px;display:block}
+
+/* ---- Screen 3: Lobby ---- */
+.codebox{font-family:'Exo 2',sans-serif;font-size:2rem;font-weight:900;
+  letter-spacing:8px;color:var(--gold);text-align:center;padding:12px;
+  background:rgba(0,0,0,.4);border-radius:11px;border:2px dashed var(--bdr);margin:7px 0}
+.pslots{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:7px 0}
+.pslot{padding:10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:7px;background:rgba(0,0,0,.25)}
+.pslot.filled{border-color:var(--grn)}.pslot.mine{border-color:var(--gold)}
+.pslot.empty{border-style:dashed;opacity:.45}
+.sav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.95rem;flex-shrink:0}
+.snm{font-size:.8rem;font-weight:600}.sst{font-size:.65rem;color:var(--mu)}
+.invbox{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);
+  border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:9px;margin-top:7px}
+.invcode{font-family:'Exo 2',sans-serif;font-size:.88rem;color:var(--cyan);
+  flex:1;letter-spacing:1.5px;word-break:break-all}
+/* WAITING state withdraw notice */
+.wait-notice{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);
+  border-radius:9px;padding:10px 12px;margin-top:8px;font-size:.8rem;line-height:1.5}
+
+/* ---- Screen 4: Game ---- */
+#sg{padding:0;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#1a1050 0%,#080818 60%)}
+.ghdr{width:100%;padding:6px 11px;display:flex;align-items:center;
+  justify-content:space-between;background:rgba(0,0,0,.85);
+  border-bottom:1px solid var(--bdr);flex-shrink:0}
+.tind{display:flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700}
+.tdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 7px currentColor}
+.bwrap{width:100%;display:flex;justify-content:center;align-items:center;flex-shrink:0;background:transparent}
+#gc{display:block;touch-action:none;border-radius:10px;box-shadow:0 0 40px rgba(255,215,0,.25),0 8px 48px rgba(0,0,0,.9)}
+.gctrl{width:100%;padding:7px 9px;display:flex;align-items:center;gap:7px;
+  flex-shrink:0;background:rgba(0,0,0,.65)}
+.dice{width:56px;height:56px;background:#fff;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:1.75rem;cursor:pointer;
+  border:3px solid transparent;box-shadow:0 4px 14px rgba(0,0,0,.6);
+  transition:all .14s;flex-shrink:0}
+.dice:active{transform:scale(.85)}
+.dice.roll{border-color:var(--gold);animation:glow .9s infinite}
+.dice.shk{animation:shk .08s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(255,215,0,.2)}50%{box-shadow:0 0 20px rgba(255,215,0,.9)}}
+@keyframes shk{0%,100%{transform:translateX(0)}33%{transform:translateX(-3px) rotate(-5deg)}66%{transform:translateX(3px) rotate(5deg)}}
+.dlbl{font-size:.6rem;color:var(--mu);text-align:center;margin-top:2px}
+.dice-result{font-family:'Exo 2',sans-serif;font-weight:900;font-size:2.6rem;
+  color:var(--gold);text-align:center;min-width:52px;line-height:1;
+  text-shadow:0 0 18px rgba(255,215,0,.6);animation:none;transition:transform .12s}
+.dice-result.pop{animation:dpop .25s ease-out}
+@keyframes dpop{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+.ppanel{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pcard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:7px;padding:5px 7px;transition:all .18s}
+.pcard.active{border-color:var(--gold);background:rgba(255,215,0,.06)}
+.pcnm{font-size:.7rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcsc{font-size:.6rem;color:var(--mu)}
+.pctoks{display:flex;gap:3px;margin-top:3px}
+.ptok{width:9px;height:9px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.ptok.home{opacity:.18}.ptok.done{border-color:gold!important;box-shadow:0 0 4px gold}
+.gmsg{text-align:center;padding:3px 7px;font-size:.8rem;color:var(--gold);
+  min-height:21px;font-weight:600;flex-shrink:0}
+
+/* ---- Screen 5: Crediting ---- */
+#sc2{background:radial-gradient(ellipse at 50% 20%,#0e1a50 0%,var(--bg) 65%);
+  justify-content:center;align-items:center;gap:14px}
+.crediting-icon{font-size:3.5rem;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.cred-steps{display:flex;flex-direction:column;gap:8px;width:calc(100% - 24px);max-width:320px}
+.cred-step{display:flex;align-items:center;gap:10px;font-size:.85rem;
+  padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03)}
+.cred-step.done{border-color:var(--grn);background:rgba(46,212,122,.06)}
+.cred-step.active{border-color:var(--gold);background:rgba(255,215,0,.06)}
+.cstep-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--mu)}
+.cred-step.done .cstep-dot{background:var(--grn)}
+.cred-step.active .cstep-dot{background:var(--gold);animation:pd .8s infinite}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---- Screen 6: Result ---- */
+#sr{background:radial-gradient(ellipse at 50% 15%,#2a0e6e 0%,var(--bg) 65%);
+  justify-content:center;align-items:center}
+.trophy{font-size:4rem;animation:bounce .85s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+.rtitle{font-family:'Exo 2',sans-serif;font-size:1.4rem;font-weight:900;
+  color:var(--gold);margin:8px 0 3px}
+.prizebox{background:linear-gradient(135deg,rgba(255,215,0,.14),rgba(255,140,0,.05));
+  border:1px solid var(--gold);border-radius:16px;padding:18px;text-align:center;
+  width:calc(100% - 24px);max-width:360px;margin:9px 0}
+.pramt{font-family:'Exo 2',sans-serif;font-size:2.6rem;font-weight:900;color:var(--gold)}
+.cbadge{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(46,212,122,.12);border:1px solid rgba(46,212,122,.3);
+  border-radius:20px;padding:5px 14px;font-size:.8rem;color:var(--grn);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
+<div class="ldr" id="ldr"><div class="spin"></div><div class="tmu tsm" id="ldrt">Loading...</div></div>
+
+<!-- MODAL: DEPOSIT -->
+<div class="mov" id="m-dep">
+<div class="modal">
+  <div class="mhdr">Deposit KAVI<button class="mcls" onclick="CM('m-dep')">x</button></div>
+  <span class="lbl">KAVI Amount</span>
+  <input class="inp" id="dep-amt" type="number" placeholder="e.g. 500" oninput="calcDep()">
+  <div class="ftbl">
+    <div class="fr"><span>Points credited</span><span id="dep-pts" class="tg">0</span></div>
+    <div class="fr txs tmu"><span>1 KAVI = 1 Point</span><span class="tcy">BSC</span></div>
+  </div>
+  <div class="txs tmu mb8">Depositing is always allowed regardless of game state.</div>
+  <button class="btn bgold" onclick="doDeposit()">Deposit</button>
+</div></div>
+
+<!-- MODAL: WITHDRAW -->
+<div class="mov" id="m-wd">
+<div class="modal">
+  <div class="mhdr">Withdraw KAVI<button class="mcls" onclick="CM('m-wd')">x</button></div>
+  <span class="lbl">Points to Withdraw</span>
+  <input class="inp" id="wd-amt" type="number" placeholder="Enter points" oninput="calcWd()">
+  <span class="lbl">Referral Address (optional)</span>
+  <input class="inp" id="wd-ref" placeholder="0x...">
+  <div class="ftbl">
+    <div class="fr"><span>Total Points</span><span id="wt-tot">0</span></div>
+    <div class="fr"><span>Referral (5%)</span><span id="wt-ref" class="tcy">0</span></div>
+    <div class="fr"><span>Burn (5%)</span><span id="wt-brn" class="tr">0</span></div>
+    <div class="fr"><span>Protocol (5%)</span><span id="wt-fee" class="tmu">0</span></div>
+    <div class="fr win"><span>You receive (KAVI)</span><span id="wt-rcv">0</span></div>
+  </div>
+  <button class="btn bgold mt8" onclick="doWithdraw()">Withdraw</button>
+</div></div>
+
+<!-- MODAL: CREATE -->
+<div class="mov" id="m-cr">
+<div class="modal">
+  <div class="mhdr">Create Game Zone<button class="mcls" onclick="CM('m-cr')">x</button></div>
+  <span class="lbl">Zone Name</span>
+  <input class="inp" id="cr-name" placeholder="My Ludo Zone" maxlength="20">
+  <span class="lbl">Stake per Player (Kavi Points)</span>
+  <input class="inp" id="cr-stake" type="number" value="100" min="10" oninput="calcCr()">
+  <span class="lbl">Players</span>
+  <div class="row mb8">
+    <button class="btn bout bsm" id="mp2" onclick="setMP(2)">2</button>
+    <button class="btn bgold bsm" id="mp3" onclick="setMP(3)">3</button>
+    <button class="btn bout bsm" id="mp4" onclick="setMP(4)">4</button>
+  </div>
+  <span class="lbl">Fill empty slots with</span>
+  <div class="row mb8">
+    <button class="btn bgold bsm" id="bot-y" onclick="setBots(true)">AI Bots</button>
+    <button class="btn bout bsm" id="bot-n" onclick="setBots(false)">Real Players</button>
+  </div>
+  <div class="ftbl">
+    <div class="fr"><span>Prize Pool</span><span id="cr-pool" class="tg">0 pts</span></div>
+    <div class="fr win"><span>Winner receives (85%)</span><span id="cr-win">0 pts</span></div>
+  </div>
+  <button class="btn bgold mt8" onclick="createGame()">Create Zone</button>
+</div></div>
+
+<!-- MODAL: JOIN -->
+<div class="mov" id="m-jo">
+<div class="modal">
+  <div class="mhdr">Join Game Zone<button class="mcls" onclick="CM('m-jo')">x</button></div>
+  <span class="lbl">6-Character Game Code</span>
+  <input class="inp" id="jo-code" maxlength="6" placeholder="ABC123"
+    style="text-transform:uppercase;font-size:1.9rem;letter-spacing:7px;text-align:center;font-family:'Exo 2',sans-serif">
+  <button class="btn bgold mt8" onclick="joinGame()">Join</button>
+</div></div>
+
+<!-- SCREEN 1: WALLET -->
+<div class="sc on" id="sw">
+  <div class="hlogo" style="margin-top:40px">KAVI LUDO</div>
+  <div style="text-align:center;font-size:.88rem;color:var(--mu);margin:5px 0 8px">Play Smart - Earn KAVI - Win Big</div>
+  <div class="bscb"><span class="bscd"></span>BNB Smart Chain</div>
+  <div class="feats">
+    <div class="feat"><span class="fi">&#x26A1;</span>Auto Prize Credit</div>
+    <div class="feat"><span class="fi">&#x1F512;</span>100% On-Chain</div>
+    <div class="feat"><span class="fi">&#x1F4B0;</span>KAVI Token</div>
+    <div class="feat"><span class="fi">&#x1F91D;</span>5% Referral</div>
+  </div>
+  <div class="wbtns">
+    <button class="btn bgold" onclick="connectWallet()">Connect MetaMask</button>
+    <button class="btn bout" onclick="demoMode()">Demo Mode (No Wallet)</button>
+  </div>
+  <div class="txs tmu tc" style="margin-top:12px;width:calc(100% - 24px);max-width:360px;line-height:1.6">
+    Self-custody - No KYC - BSC Smart Contract<br>
+    Withdrawal: Ref 5% + Burn 5% + Protocol 5% = <span class="tgrn">85% to you</span>
+  </div>
+</div>
+
+<!-- SCREEN 2: DASHBOARD -->
+<div class="sc" id="sd">
+  <div class="hdr">
+    <div class="logo">KaviLudo</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <div class="bscb" style="font-size:.6rem;margin:0"><span class="bscd"></span>BSC</div>
+      <div class="wpill" id="wp" onclick="cpyAddr()">Demo</div>
+    </div>
+  </div>
+
+  <!-- Balance card -->
+  <div class="card balcard mt8">
+    <div class="txs tmu mb8">KAVI POINTS BALANCE</div>
+    <div class="balmain" id="d-pts">0</div>
+    <div class="balsub">Kavi Points Available</div>
+    <div class="balgrid">
+      <div class="bali"><div class="balv" id="d-kv">0</div><div class="ball">KAVI in Wallet</div></div>
+      <div class="bali"><div class="balv" id="d-gp">0</div><div class="ball">Games Played</div></div>
+    </div>
+    <!-- Deposit always available, Withdraw only when not locked -->
+    <div class="row mt12">
+      <button class="btn bteal bsm" onclick="OM('m-dep')">Deposit</button>
+      <button class="btn bgold bsm" id="wd-btn" onclick="openWd()">Withdraw KAVI</button>
+    </div>
+  </div>
+
+  <!-- Lock banner: visible only when game is ACTIVE -->
+  <div class="lock-banner" id="lock-banner">
+    <div class="lb-title">&#x1F512; Withdrawal Locked - Game in Progress</div>
+    <div class="lb-desc">
+      Your KAVI points are locked while the game is active.
+      Complete the game to unlock withdrawals.<br>
+      Game code: <span class="lb-code" id="lb-code">------</span>
+    </div>
+    <button class="btn bgold mt8" onclick="resumeGame()" style="padding:9px">Resume Game</button>
+  </div>
+
+  <!-- Action buttons: hidden when game is ACTIVE -->
+  <div class="qas" id="dash-qas">
+    <div class="qa" onclick="OM('m-cr')"><span class="qi">&#x1F3DF;</span><div class="ql">Create Game</div><div class="qd">Create a zone</div></div>
+    <div class="qa" onclick="OM('m-jo')"><span class="qi">&#x1F3AF;</span><div class="ql">Join Game</div><div class="qd">Join by code</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Withdrawal Rules</div>
+    <div class="ftbl" style="margin:0">
+      <div class="fr"><span>Before game starts (WAITING)</span><span class="tgrn">Allowed</span></div>
+      <div class="fr"><span>Game in progress (ACTIVE)</span><span class="tr">Locked</span></div>
+      <div class="fr"><span>After game ends</span><span class="tgrn">Allowed</span></div>
+      <div class="fr win"><span>You receive (KAVI)</span><span>85%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: LOBBY -->
+<div class="sc" id="sl">
+  <div class="hdr">
+    <div class="logo">Game Lobby</div>
+    <button class="btn bsm bout" onclick="leaveL()" style="width:auto">Back</button>
+  </div>
+  <div class="card mt8">
+    <div class="ct">Game Code - Share to invite</div>
+    <div class="codebox" id="l-code">------</div>
+    <div class="invbox">
+      <span class="invcode" id="l-link">kaviludo.io/------</span>
+      <button class="btn bsm bout" onclick="cpyInv()" style="width:auto;flex-shrink:0">Copy</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct" id="l-title">Players (0/4)</div>
+    <div class="pslots" id="l-slots"></div>
+  </div>
+  <div class="card">
+    <div class="ct">Game Info</div>
+    <div class="fb mb8"><span class="tsm tmu">Stake per player</span><span class="tsm tg" id="l-stake">0 pts</span></div>
+    <div class="fb mb8"><span class="tsm tmu">Prize Pool</span><span class="tsm tg" id="l-pool">0 pts</span></div>
+    <div class="fb"><span class="tsm tmu">Winner receives (85%)</span><span class="tsm tg" id="l-wwin">0 pts</span></div>
+    <div class="wait-notice">
+      <span class="tcy">Status: WAITING</span> - You can still withdraw your remaining free points
+      from Dashboard before the game goes active.
+    </div>
+  </div>
+  <div style="width:calc(100% - 24px);max-width:470px">
+    <button class="btn bgold" id="l-start" onclick="startGame()" disabled>Waiting for players...</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: GAME -->
+<div class="sc" id="sg">
+  <div class="ghdr">
+    <div class="tind"><div class="tdot" id="td" style="background:var(--CRED)"></div><span id="tlbl">Red's turn</span></div>
+    <div class="txs tmu" id="g-round">Round 1</div>
+    <!-- Quit is intentionally removed in active game: you must play to completion -->
+    <div class="txs tmu" style="padding:4px 8px;border:1px solid rgba(255,68,68,.3);border-radius:7px;color:var(--red)">&#x1F512; Must play</div>
+  </div>
+  <div class="gmsg" id="gmsg">Roll the dice!</div>
+  <div class="bwrap" id="bwrap"><canvas id="gc"></canvas></div>
+  <div class="gctrl">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
+      <div class="dice roll" id="diceEl" onclick="rollDice()">&#x1F3B2;</div>
+      <div class="dlbl" id="dval-lbl">Roll!</div>
+      <div class="dice-result" id="dval" style="display:none"></div>
+    </div>
+    <div class="ppanel" id="ppanel"></div>
+  </div>
+</div>
+
+<!-- SCREEN 5: AUTO CREDITING -->
+<div class="sc" id="sc2">
+  <div class="crediting-icon">&#x26A1;</div>
+  <div style="font-family:'Exo 2',sans-serif;font-size:1.1rem;color:var(--gold);text-align:center">Crediting Prize...</div>
+  <div class="cred-steps" id="cred-steps">
+    <div class="cred-step" id="cs1"><div class="cstep-dot"></div><span>Game result detected</span></div>
+    <div class="cred-step" id="cs2"><div class="cstep-dot"></div><span>Signing transaction</span></div>
+    <div class="cred-step" id="cs3"><div class="cstep-dot"></div><span>Broadcasting to BSC</span></div>
+    <div class="cred-step" id="cs4"><div class="cstep-dot"></div><span>Points credited - lock released</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 6: RESULT -->
+<div class="sc" id="sr">
+  <div class="trophy" id="r-trophy">&#x1F3C6;</div>
+  <div class="rtitle" id="r-title">You Win!</div>
+  <div class="tsm tmu tc" id="r-sub" style="margin-bottom:12px">Points credited. Withdrawals unlocked!</div>
+  <div class="prizebox">
+    <div class="txs tmu mb8">PRIZE CREDITED TO ACCOUNT</div>
+    <div class="pramt" id="r-amt">850</div>
+    <div class="tsm tmu">Kavi Points</div>
+    <div class="cbadge" id="r-badge">Credited + Withdrawal Unlocked</div>
+  </div>
+  <div style="width:calc(100% - 24px);max-width:360px;display:flex;flex-direction:column;gap:8px">
+    <button class="btn bgold" id="r-wd-btn" onclick="openWithdraw()">Withdraw as KAVI</button>
+    <button class="btn bout" onclick="goD()">Dashboard</button>
+    <button class="btn bout" onclick="OM('m-cr')">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONTRACT CONFIG -- Update after deploying on Remix
+// ============================================================
+const VAULT_ADDR = "0xYOUR_DEPLOYED_VAULT_ADDRESS";
+const KAVI_ADDR  = "0xYOUR_KAVI_TOKEN_BSC_ADDRESS";
+
+const VAULT_ABI = [
+  {"inputs":[{"type":"uint256","name":"amount"},{"type":"address","name":"_referrer"}],
+   "name":"depositKavi","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"bytes6","name":"code"},{"type":"uint256","name":"stakePerPlayer"},
+   {"type":"uint8","name":"maxPlayers"}],
+   "name":"createGame","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"bytes6","name":"code"}],
+   "name":"joinGame","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"bytes6","name":"code"}],
+   "name":"claimPrize","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"uint256","name":"points"},{"type":"address","name":"refOverride"}],
+   "name":"withdrawPoints","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"bytes6","name":"code"}],
+   "name":"refundTimeout","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"bytes6","name":"code"}],
+   "name":"cancelGame","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"address","name":"user"}],"name":"getPoints",
+   "outputs":[{"type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"type":"address","name":"user"}],"name":"isLocked",
+   "outputs":[{"type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"type":"address","name":"user"}],"name":"getLockCount",
+   "outputs":[{"type":"uint8"}],"stateMutability":"view","type":"function"},
+];
+const ERC20_ABI = [
+  {"inputs":[{"type":"address","name":"spender"},{"type":"uint256","name":"amount"}],
+   "name":"approve","outputs":[{"type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"type":"address","name":"account"}],"name":"balanceOf",
+   "outputs":[{"type":"uint256"}],"stateMutability":"view","type":"function"},
+];
+
+// ============================================================
+//  APP STATE
+// ============================================================
+const App = {
+  web3:null, wallet:null, isDemo:false,
+  kaviPts:1000, kaviWallet:0, gamesPlayed:0,
+  zone:null, vault:null, kavi:null,
+  // Lock state (mirrors contract's activeLocks)
+  isLocked:false,   // true when user is in an ACTIVE game
+  activeCode:null,  // code of the active game
+};
+
+// ============================================================
+//  LUDO ENGINE
+// ============================================================
+const COLORS=['red','green','yellow','blue'];
+const CNAMES={red:'Red',green:'Green',yellow:'Yellow',blue:'Blue'};
+const CCSS={red:'#FF4444',green:'#2ED47A',yellow:'#FFE500',blue:'#4FC3F7'};
+const SAFE=new Set([0,8,13,21,26,34,39,47]);
+const SIDX={red:0,green:13,yellow:26,blue:39};
+
+const PATH=(()=>{
+  const p=[];
+  for(let c=1;c<=5;c++)p.push([6,c]);
+  for(let r=5;r>=0;r--)p.push([r,6]);
+  p.push([0,7],[0,8]);
+  for(let r=1;r<=6;r++)p.push([r,8]);
+  for(let c=9;c<=13;c++)p.push([6,c]);
+  p.push([7,14],[8,14]);
+  for(let c=13;c>=9;c--)p.push([8,c]);
+  for(let r=9;r<=14;r++)p.push([r,8]);
+  p.push([14,7],[14,6]);
+  for(let r=13;r>=9;r--)p.push([r,6]);
+  for(let c=5;c>=0;c--)p.push([8,c]);
+  p.push([7,0],[6,0]);
+  return p;
+})();
+
+const HCOL={
+  red:[[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
+  green:[[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
+  yellow:[[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
+  blue:[[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]],
+};
+const HBASE={
+  red:[[1,1],[1,3],[3,1],[3,3]],
+  green:[[1,11],[1,13],[3,11],[3,13]],
+  yellow:[[11,11],[11,13],[13,11],[13,13]],
+  blue:[[11,1],[11,3],[13,1],[13,3]],
+};
+
+let G={players:[],curP:0,dice:0,rolled:false,movable:[],round:1,phase:'idle',botDelay:850};
+let CV,CTX,CELL;
+
+// ============================================================
+//  UI HELPERS
+// ============================================================
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
+function OM(id){$(id).classList.add('on');}
+function CM(id){$(id).classList.remove('on');}
+function showLdr(t='Loading...'){$('ldr').classList.add('on');$('ldrt').textContent=t;}
+function hideLdr(){$('ldr').classList.remove('on');}
+function toast(msg,type='',dur=2800){
+  const t=$('toast');t.textContent=msg;t.className='toast on '+(type);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),dur);
+}
+function mkId(n=6){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function fmtA(a){return a?a.slice(0,6)+'...'+a.slice(-4):'';}
+function cpy(t){navigator.clipboard?.writeText(t).then(()=>toast('Copied!','ok'));}
+function cpyAddr(){cpy(App.wallet||'Demo');}
+function cpyInv(){cpy($('l-link').textContent);}
+function goD(){show('sd');refreshDash();}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// Stars background
+(()=>{const el=$('stars');for(let i=0;i<50;i++){const s=document.createElement('div');s.className='s';const z=Math.random()*2.5+.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;--dl:${Math.random()*5}s`;el.appendChild(s);}})();
+
+// ============================================================
+//  LOCK STATE MANAGEMENT
+//  Mirrors the contract's activeLocks mapping in the browser.
+//  This controls dashboard UI (banner, disabled withdraw, etc.)
+// ============================================================
+function setLocked(locked, code) {
+  App.isLocked   = locked;
+  App.activeCode = locked ? code : null;
+
+  // Withdraw button
+  const wdBtn = $('wd-btn');
+  if (locked) {
+    wdBtn.disabled  = true;
+    wdBtn.textContent = 'Locked - Game Active';
+    wdBtn.className = 'btn bred bsm';
+  } else {
+    wdBtn.disabled  = false;
+    wdBtn.textContent = 'Withdraw KAVI';
+    wdBtn.className = 'btn bgold bsm';
+  }
+
+  // Lock banner
+  $('lock-banner').classList.toggle('on', locked);
+  if (locked && code) $('lb-code').textContent = code;
+
+  // Game/Join buttons -- hide when locked (must play)
+  $('dash-qas').style.display = locked ? 'none' : '';
+}
+
+// Fetch lock state from contract (real wallet)
+async function fetchLockState() {
+  if (App.isDemo || !App.vault || !App.wallet) return;
+  try {
+    const locked = await App.vault.methods.isLocked(App.wallet).call();
+    // If locked but we don't know the code, we can't show it -- leave current code
+    if (!locked) setLocked(false, null);
+  } catch(e) {}
+}
+
+// ============================================================
+//  WALLET
+// ============================================================
+async function connectWallet() {
+  if (!window.ethereum) { toast('Please install MetaMask!', 'er'); return; }
+  showLdr('Connecting MetaMask...');
+  try {
+    const w = new Web3(window.ethereum);
+    const accs = await window.ethereum.request({method:'eth_requestAccounts'});
+    App.web3 = w; App.wallet = accs[0]; App.isDemo = false;
+    try {
+      const chain = await w.eth.getChainId();
+      if (Number(chain) !== 56)
+        await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x38'}]});
+    } catch(e) {}
+    App.vault = new w.eth.Contract(VAULT_ABI, VAULT_ADDR);
+    App.kavi  = new w.eth.Contract(ERC20_ABI, KAVI_ADDR);
+    try {
+      const pts = await App.vault.methods.getPoints(App.wallet).call();
+      App.kaviPts = Number(w.utils.fromWei(pts, 'ether'));
+      const kb = await App.kavi.methods.balanceOf(App.wallet).call();
+      App.kaviWallet = Number(w.utils.fromWei(kb, 'ether'));
+    } catch(e) {}
+    afterConnect();
+  } catch(e) { toast('Connection failed', 'er'); }
+  finally { hideLdr(); }
+}
+
+function demoMode() {
+  App.isDemo = true; App.wallet = '0xDEMO...Player1';
+  App.kaviPts = 1000; App.kaviWallet = 500;
+  afterConnect();
+}
+
+function afterConnect() {
+  $('wp').textContent = App.isDemo ? 'Demo Mode' : fmtA(App.wallet);
+  setLocked(false, null); // start unlocked
+  refreshDash();
+  show('sd');
+  toast('Connected!', 'ok');
+}
+
+function refreshDash() {
+  $('d-pts').textContent    = Math.floor(App.kaviPts);
+  $('d-kv').textContent     = App.kaviWallet.toFixed(2);
+  $('d-gp').textContent     = App.gamesPlayed;
+}
+
+function openWd() {
+  if (App.isLocked) {
+    toast('Locked: complete the active game first!', 'er');
+    return;
+  }
+  OM('m-wd');
+}
+
+// ============================================================
+//  DEPOSIT / WITHDRAW
+// ============================================================
+function calcDep() { const v=parseFloat($('dep-amt').value)||0; $('dep-pts').textContent=v+' Points'; }
+function calcWd() {
+  const v=parseFloat($('wd-amt').value)||0;
+  $('wt-tot').textContent=v;
+  $('wt-ref').textContent='-'+(v*.05).toFixed(2);
+  $('wt-brn').textContent='-'+(v*.05).toFixed(2);
+  $('wt-fee').textContent='-'+(v*.05).toFixed(2);
+  $('wt-rcv').textContent=(v*.85).toFixed(2)+' KAVI';
+}
+
+async function doDeposit() {
+  const amt = parseFloat($('dep-amt').value);
+  if (!amt || amt <= 0) { toast('Enter a valid amount', 'er'); return; }
+  if (App.isDemo) {
+    App.kaviPts += amt; refreshDash(); CM('m-dep'); toast(amt+' Points credited!', 'ok'); return;
+  }
+  showLdr('Approving KAVI...');
+  try {
+    const weiAmt = App.web3.utils.toWei(amt.toString(), 'ether');
+    await App.kavi.methods.approve(VAULT_ADDR, weiAmt).send({from: App.wallet});
+    $('ldrt').textContent = 'Depositing...';
+    await App.vault.methods.depositKavi(weiAmt, '0x0000000000000000000000000000000000000000').send({from: App.wallet});
+    App.kaviPts += amt; refreshDash(); CM('m-dep'); toast(amt+' KAVI deposited!', 'ok');
+  } catch(e) { toast('Transaction failed', 'er'); }
+  finally { hideLdr(); }
+}
+
+async function doWithdraw() {
+  // Double-check lock
+  if (App.isLocked) { toast('Locked: complete the active game first!', 'er'); CM('m-wd'); return; }
+  const amt = parseFloat($('wd-amt').value);
+  if (!amt || amt <= 0) { toast('Enter a valid amount', 'er'); return; }
+  if (amt > App.kaviPts) { toast('Insufficient free points', 'er'); return; }
+  const ref = $('wd-ref').value.trim() || '0x0000000000000000000000000000000000000000';
+  if (App.isDemo) {
+    App.kaviPts -= amt; App.kaviWallet += amt * .85;
+    refreshDash(); CM('m-wd'); toast((amt*.85).toFixed(2)+' KAVI withdrawn!', 'ok'); return;
+  }
+  showLdr('Processing withdrawal...');
+  try {
+    // Contract will also revert if locked -- double protection
+    const weiAmt = App.web3.utils.toWei(amt.toString(), 'ether');
+    await App.vault.methods.withdrawPoints(weiAmt, ref).send({from: App.wallet});
+    App.kaviPts -= amt; App.kaviWallet += amt * .85;
+    refreshDash(); CM('m-wd'); toast((amt*.85).toFixed(2)+' KAVI received!', 'ok');
+  } catch(e) { toast('Withdrawal failed', 'er'); }
+  finally { hideLdr(); }
+}
+
+// ============================================================
+//  GAME ZONE
+// ============================================================
+let CR_MP=3, CR_BOTS=true;
+function setMP(n){CR_MP=n;['mp2','mp3','mp4'].forEach(id=>{$(id).className='btn bsm '+(parseInt(id.slice(2))===n?'bgold':'bout');});calcCr();}
+function setBots(v){CR_BOTS=v;$('bot-y').className='btn bsm '+(v?'bgold':'bout');$('bot-n').className='btn bsm '+(v?'bout':'bgold');}
+function calcCr(){const s=parseFloat($('cr-stake').value)||0,pool=s*CR_MP;$('cr-pool').textContent=pool+' pts';$('cr-win').textContent=(pool*.85).toFixed(0)+' pts';}
+
+async function createGame() {
+  const name = $('cr-name').value.trim() || 'My Zone';
+  const stake = parseFloat($('cr-stake').value) || 100;
+  if (stake > App.kaviPts) { toast('Insufficient Points', 'er'); return; }
+  const code = mkId(6);
+  if (!App.isDemo) {
+    showLdr('Creating game zone...');
+    try {
+      const weiStake = App.web3.utils.toWei(stake.toString(), 'ether');
+      const codeHex  = App.web3.utils.asciiToHex(code).padEnd(14,'0').slice(0,14);
+      await App.vault.methods.createGame(codeHex, weiStake, CR_MP).send({from: App.wallet});
+    } catch(e) { hideLdr(); toast('Transaction failed', 'er'); return; }
+    hideLdr();
+  }
+  App.kaviPts -= stake; refreshDash();
+  // Stake deducted, zone is WAITING -- still unlocked
+  App.zone = {code, name, stake, maxP:CR_MP, bots:CR_BOTS,
+    players:[{id:0, name:App.isDemo?'You':fmtA(App.wallet), color:'red', isBot:false, mine:true}],
+    host:true, status:'WAITING'};
+  CM('m-cr'); showLobby(); simulateJoins();
+}
+
+async function joinGame() {
+  const code = $('jo-code').value.toUpperCase().trim();
+  if (code.length !== 6) { toast('Enter 6-character code', 'er'); return; }
+  const stake = 100;
+  if (stake > App.kaviPts) { toast('Insufficient points', 'er'); return; }
+  if (!App.isDemo) {
+    showLdr('Joining game...');
+    try {
+      const codeHex = App.web3.utils.asciiToHex(code).padEnd(14,'0').slice(0,14);
+      await App.vault.methods.joinGame(codeHex).send({from: App.wallet});
+    } catch(e) { hideLdr(); toast('Join failed', 'er'); return; }
+    hideLdr();
+  }
+  App.kaviPts -= stake; refreshDash();
+  App.zone = {code, name:'Guest Zone', stake, maxP:4, bots:true,
+    players:[
+      {id:0, name:'Host',   color:'red',   isBot:false, mine:false},
+      {id:1, name:App.isDemo?'You':fmtA(App.wallet), color:'green', isBot:false, mine:true}
+    ], host:false, status:'WAITING'};
+  CM('m-jo'); showLobby(); simulateJoins();
+}
+
+function showLobby() {
+  const z = App.zone;
+  $('l-code').textContent = z.code;
+  $('l-link').textContent = 'kaviludo.io/join/'+z.code;
+  $('l-stake').textContent = z.stake+' pts';
+  $('l-pool').textContent  = (z.stake * z.maxP)+' pts';
+  $('l-wwin').textContent  = ((z.stake * z.maxP) * .85).toFixed(0)+' pts';
+  renderSlots(); show('sl');
+}
+
+function renderSlots() {
+  const z=App.zone, sl=$('l-slots'); sl.innerHTML='';
+  $('l-title').textContent = 'Players ('+z.players.length+'/'+z.maxP+')';
+  for(let i=0;i<z.maxP;i++){
+    const p=z.players[i], div=document.createElement('div'), col=CCSS[COLORS[i]];
+    if(p){
+      div.className='pslot '+(p.mine?'mine':'filled');
+      div.innerHTML='<div class="sav" style="background:'+col+'22;border:2px solid '+col+'">'+(p.isBot?'&#x1F916;':'&#x1F464;')+'</div>'
+        +'<div><div class="snm">'+p.name+'</div><div class="sst" style="color:'+col+'">'+CNAMES[COLORS[i]]+(p.mine?' (You)':'')+'</div></div>';
+    } else {
+      div.className='pslot empty';
+      div.innerHTML='<div class="sav" style="background:rgba(255,255,255,.04);border:1px dashed #444">&#x23F3;</div>'
+        +'<div><div class="snm tmu">Waiting...</div><div class="sst">'+CNAMES[COLORS[i]]+'</div></div>';
+    }
+    sl.appendChild(div);
+  }
+  const full = z.players.length >= z.maxP;
+  const btn = $('l-start');
+  btn.textContent = full ? 'Start Game' : 'Waiting for players...';
+  btn.disabled = !full;
+}
+
+function simulateJoins() {
+  const z=App.zone, BOTS=['Rahul','Priya','Amit','Kavya','Neha','Arjun'];
+  let delay=1200;
+  for(let i=z.players.length; i<z.maxP; i++){
+    const idx=i;
+    setTimeout(()=>{
+      if(!App.zone) return;
+      const nm = z.bots ? 'Bot-'+(idx+1) : BOTS[Math.floor(Math.random()*BOTS.length)];
+      App.zone.players.push({id:idx, name:nm, color:COLORS[idx], isBot:z.bots, mine:false});
+      renderSlots(); toast(nm+' joined! ('+COLORS[idx]+')', 'ok');
+    }, delay);
+    delay += z.bots ? 700 : 1400;
+  }
+}
+
+function leaveL() {
+  // Cancel game if in WAITING (refund stake)
+  if (App.zone && App.zone.status === 'WAITING' && App.zone.host) {
+    if (!App.isDemo && App.vault) {
+      const codeHex = App.web3.utils.asciiToHex(App.zone.code).padEnd(14,'0').slice(0,14);
+      App.vault.methods.cancelGame(codeHex).send({from: App.wallet}).catch(()=>{});
+    }
+    // Return stake locally in demo/optimistic
+    App.kaviPts += App.zone.stake;
+    refreshDash();
+  }
+  App.zone = null;
+  show('sd');
+}
+
+function resumeGame() {
+  // Return to game screen if game is still in progress
+  if (G.phase === 'playing') { show('sg'); updateGameUI(); }
+  else { show('sl'); }
+}
+
+// ============================================================
+//  START GAME
+//  When game starts: apply lock in browser (mirrors contract)
+// ============================================================
+function startGame() {
+  const z = App.zone;
+  if (!z || z.players.length < 2) { toast('Need at least 2 players', 'er'); return; }
+
+  G.players = z.players.map((p,i)=>({
+    id:i, name:p.name, color:COLORS[i], isBot:p.isBot, mine:p.mine,
+    tokens:[-1,-1,-1,-1], done:0, finished:false
+  }));
+  G.curP=0; G.dice=0; G.rolled=false; G.movable=[]; G.round=1; G.phase='playing';
+
+  // Mark game as ACTIVE -- apply lock
+  App.zone.status = 'ACTIVE';
+  setLocked(true, App.zone.code);
+
+  show('sg');
+  initBoard();
+  updateGameUI();
+  if (G.players[G.curP].isBot) setTimeout(doBotTurn, G.botDelay);
+}
+
+// ============================================================
+//  AUTO CREDIT -- fires the moment winner is detected
+//  Calls claimPrize() which credits points AND releases lock
+// ============================================================
+async function autoCredit(winnerPlayer) {
+  const z = App.zone;
+  if (!z) return;
+
+  const prize  = Math.floor(z.stake * z.players.length);
+  const payout = Math.floor(prize * 0.85);
+
+  show('sc2');
+
+  async function stepDone(id) { $(id).classList.add('done'); await sleep(480); }
+  async function stepActive(id) { $(id).classList.add('active'); await sleep(550); }
+
+  await stepDone('cs1');
+
+  if (App.isDemo) {
+    await stepActive('cs2'); await stepDone('cs2');
+    await stepActive('cs3'); await sleep(700); await stepDone('cs3');
+    await stepActive('cs4');
+    if (winnerPlayer.mine) App.kaviPts += prize;
+    App.gamesPlayed++;
+    // Release lock in demo mode
+    setLocked(false, null);
+    refreshDash();
+    await stepDone('cs4');
+    await sleep(300);
+    showResult(winnerPlayer, payout);
+    return;
+  }
+
+  // Real wallet
+  if (winnerPlayer.mine) {
+    await stepActive('cs2');
+    try {
+      const codeHex = App.web3.utils.asciiToHex(z.code).padEnd(14,'0').slice(0,14);
+      const tx = App.vault.methods.claimPrize(codeHex).send({from: App.wallet});
+      await stepDone('cs2');
+      await stepActive('cs3');
+      await tx;
+      await stepDone('cs3');
+      await stepActive('cs4');
+      const pts = await App.vault.methods.getPoints(App.wallet).call();
+      App.kaviPts = Number(App.web3.utils.fromWei(pts, 'ether'));
+      App.gamesPlayed++;
+      // claimPrize released the on-chain lock -- update UI
+      setLocked(false, null);
+      refreshDash();
+      await stepDone('cs4');
+      await sleep(300);
+      showResult(winnerPlayer, payout);
+    } catch(e) {
+      ['cs1','cs2','cs3','cs4'].forEach(s=>$(s).classList.remove('active','done'));
+      toast('Prize claim failed. Try again from Dashboard.', 'er');
+      goD();
+    }
+  } else {
+    // Loser: no transaction. Lock released when winner claims on-chain.
+    // Optimistically release lock in browser for better UX.
+    await stepActive('cs2'); await stepDone('cs2');
+    await stepActive('cs3'); await sleep(600); await stepDone('cs3');
+    await stepActive('cs4'); await sleep(400);
+    App.gamesPlayed++;
+    setLocked(false, null); // optimistic release
+    refreshDash();
+    await stepDone('cs4');
+    await sleep(300);
+    showResult(winnerPlayer, payout);
+  }
+}
+
+function showResult(winner, payout) {
+  ['cs1','cs2','cs3','cs4'].forEach(s=>$(s).classList.remove('active','done'));
+  $('r-trophy').textContent = winner.mine ? '&#x1F3C6;' : '&#x1F614;';
+  $('r-title').textContent  = winner.mine ? 'You Win!' : winner.name+' wins!';
+  $('r-sub').textContent    = winner.mine
+    ? 'Points credited. Withdrawals unlocked!'
+    : 'Better luck next time!';
+  $('r-amt').textContent    = winner.mine ? payout+' pts' : '0 pts';
+  const badge = $('r-badge');
+  badge.style.display       = winner.mine ? '' : 'none';
+  $('r-wd-btn').style.display = winner.mine ? '' : 'none';
+  show('sr');
+}
+
+function openWithdraw() {
+  const amt = $('r-amt').textContent.replace(' pts','');
+  if (!isNaN(parseFloat(amt)) && parseFloat(amt) > 0) {
+    $('wd-amt').value = Math.floor(parseFloat(amt)); calcWd(); OM('m-wd');
+  }
+}
+
+// ============================================================
+//  CANVAS BOARD
+// ============================================================
+// ── Rich color palettes ──────────────────────────────────────
+const CLIGHT={red:'#FF8A80',green:'#69F0AE',yellow:'#FFFF8D',blue:'#82B1FF'};
+const CDARK ={red:'#B71C1C',green:'#1B5E20',yellow:'#F57F17',blue:'#0D47A1'};
+const CMID  ={red:'#EF5350',green:'#00C853',yellow:'#FFD600',blue:'#2979FF'};
+
+function initBoard() {
+  const gh=(document.querySelector('.ghdr')||{offsetHeight:44}).offsetHeight;
+  const gm=(document.querySelector('.gmsg')||{offsetHeight:24}).offsetHeight;
+  const gc=(document.querySelector('.gctrl')||{offsetHeight:72}).offsetHeight;
+  const avail=window.innerHeight-gh-gm-gc-8;
+  const size=Math.min(avail,window.innerWidth-8,460);
+  CELL=Math.floor(size/15); const bsz=CELL*15;
+  CV=$('gc'); CV.width=bsz; CV.height=bsz;
+  CV.style.width=bsz+'px'; CV.style.height=bsz+'px';
+  CTX=CV.getContext('2d'); CV.onclick=handleClick;
+  drawBoard();
+}
+
+function drawBoard(){
+  if(!CTX)return;
+  const C=CELL,S=CV.width;
+
+  // ── Board background with gradient ──────────────────────────
+  const bg=CTX.createLinearGradient(0,0,S,S);
+  bg.addColorStop(0,'#1a1035');bg.addColorStop(1,'#0a0a20');
+  CTX.fillStyle=bg;CTX.fillRect(0,0,S,S);
+
+  // ── Draw all cells ──────────────────────────────────────────
+  for(let r=0;r<15;r++) for(let c=0;c<15;c++) drawCell(r,c);
+
+  // ── Home columns (colored lanes) ────────────────────────────
+  const hcInfo={
+    red:  {cells:HCOL.red,   dir:'h'},
+    green:{cells:HCOL.green, dir:'v'},
+    yellow:{cells:HCOL.yellow,dir:'h'},
+    blue: {cells:HCOL.blue,  dir:'v'}
+  };
+  Object.entries(hcInfo).forEach(([col,info])=>{
+    info.cells.forEach(([r,c],idx)=>{
+      const x=c*C,y=r*C;
+      const prog=(idx+1)/6;
+      const grad=CTX.createLinearGradient(x,y,x+C,y+C);
+      grad.addColorStop(0,CDARK[col]+'cc');
+      grad.addColorStop(1,CMID[col]+'ee');
+      CTX.fillStyle=grad;
+      roundRect(CTX,x+1,y+1,C-2,C-2,3);
+      CTX.fill();
+      // Shine line along center
+      CTX.strokeStyle='rgba(255,255,255,.18)';CTX.lineWidth=1;
+      roundRect(CTX,x+2,y+2,C-4,C-4,2);
+      CTX.stroke();CTX.lineWidth=1;
+    });
+  });
+
+  // ── Center piece ────────────────────────────────────────────
+  drawCenter();
+
+  // ── Safe squares (star markers) ─────────────────────────────
+  SAFE.forEach(i=>{
+    const[r,c]=PATH[i];
+    drawSafeStar(c*C+C/2,r*C+C/2,C*.32);
+  });
+
+  // ── Board border ────────────────────────────────────────────
+  const brd=4;
+  const grad2=CTX.createLinearGradient(0,0,S,S);
+  grad2.addColorStop(0,'#FFD700');grad2.addColorStop(.5,'#FFA500');grad2.addColorStop(1,'#FFD700');
+  CTX.strokeStyle=grad2;CTX.lineWidth=brd;
+  roundRect(CTX,brd/2,brd/2,S-brd,S-brd,8);
+  CTX.stroke();CTX.lineWidth=1;
+
+  // ── Tokens on top ────────────────────────────────────────────
+  G.players.forEach(p=>drawTokens(p));
+}
+
+// Helper: rounded rect path
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function drawCell(r,c){
+  const C=CELL,x=c*C,y=r*C;
+
+  // ── Corner home areas (6x6 blocks) ─────────────────────────
+  const corners=[
+    {r1:0,r2:5,c1:0,c2:5,col:'red'},
+    {r1:0,r2:5,c1:9,c2:14,col:'green'},
+    {r1:9,r2:14,c1:9,c2:14,col:'yellow'},
+    {r1:9,r2:14,c1:0,c2:5,col:'blue'}
+  ];
+  for(const k of corners){
+    if(r>=k.r1&&r<=k.r2&&c>=k.c1&&c<=k.c2){
+      // Outer ring of corner: colored border
+      const isOuter=(r===k.r1||r===k.r2||c===k.c1||c===k.c2);
+      const grad=CTX.createLinearGradient(x,y,x+C,y+C);
+      if(isOuter){
+        grad.addColorStop(0,CDARK[k.col]+'ff');
+        grad.addColorStop(1,CMID[k.col]+'cc');
+      } else {
+        grad.addColorStop(0,CDARK[k.col]+'cc');
+        grad.addColorStop(1,CDARK[k.col]+'88');
+      }
+      CTX.fillStyle=grad;
+      CTX.fillRect(x,y,C,C);
+
+      // Inner 4x4 token area: lighter circle zone
+      const isInner=(r>=k.r1+1&&r<=k.r2-1&&c>=k.c1+1&&c<=k.c2-1);
+      if(isInner){
+        const pad=C*.08;
+        const ig=CTX.createRadialGradient(x+C/2,y+C/2,0,x+C/2,y+C/2,C*.7);
+        ig.addColorStop(0,CLIGHT[k.col]+'33');
+        ig.addColorStop(1,'transparent');
+        CTX.fillStyle=ig;CTX.fillRect(x+pad,y+pad,C-pad*2,C-pad*2);
+      }
+
+      // Grid lines
+      CTX.strokeStyle='rgba(0,0,0,.2)';CTX.lineWidth=.5;
+      CTX.strokeRect(x+.5,y+.5,C-1,C-1);CTX.lineWidth=1;
+
+      // Draw token circle wells in inner 4x4
+      if(r>=k.r1+1&&r<=k.r2-1&&c>=k.c1+1&&c<=k.c2-1){
+        const margin=C*.15;
+        CTX.beginPath();CTX.arc(x+C/2,y+C/2,C*.36,0,Math.PI*2);
+        CTX.fillStyle='rgba(0,0,0,.25)';CTX.fill();
+        CTX.beginPath();CTX.arc(x+C/2,y+C/2,C*.32,0,Math.PI*2);
+        CTX.fillStyle='rgba(255,255,255,.06)';CTX.fill();
+        CTX.beginPath();CTX.arc(x+C/2,y+C/2,C*.32,0,Math.PI*2);
+        CTX.strokeStyle='rgba(255,255,255,.12)';CTX.lineWidth=.7;CTX.stroke();CTX.lineWidth=1;
+      }
+      return;
+    }
+  }
+
+  // ── Center 3x3 (handled separately) ─────────────────────────
+  if(r>=6&&r<=8&&c>=6&&c<=8) return;
+
+  // ── Path cells ───────────────────────────────────────────────
+  const isPath=PATH.findIndex(([pr,pc])=>pr===r&&pc===c)>=0;
+  if(isPath){
+    // Check if it's a start cell for any color
+    const startCols=Object.entries(SIDX).find(([col,si])=>
+      PATH[si][0]===r&&PATH[si][1]===c
+    );
+    if(startCols){
+      const col=startCols[0];
+      const sg=CTX.createRadialGradient(x+C/2,y+C/2,0,x+C/2,y+C/2,C*.7);
+      sg.addColorStop(0,CLIGHT[col]+'ff');
+      sg.addColorStop(1,CMID[col]+'aa');
+      CTX.fillStyle=sg;
+      roundRect(CTX,x+1,y+1,C-2,C-2,4);CTX.fill();
+      CTX.strokeStyle='rgba(255,255,255,.4)';CTX.lineWidth=1;
+      roundRect(CTX,x+1,y+1,C-2,C-2,4);CTX.stroke();CTX.lineWidth=1;
+    } else {
+      // Normal path cell: cream white
+      const pg=CTX.createLinearGradient(x,y,x+C,y+C);
+      pg.addColorStop(0,'rgba(255,255,255,.92)');
+      pg.addColorStop(1,'rgba(220,220,240,.85)');
+      CTX.fillStyle=pg;
+      roundRect(CTX,x+1,y+1,C-2,C-2,3);CTX.fill();
+      CTX.strokeStyle='rgba(180,180,210,.5)';CTX.lineWidth=.7;
+      roundRect(CTX,x+1,y+1,C-2,C-2,3);CTX.stroke();CTX.lineWidth=1;
+    }
+    return;
+  }
+
+  // ── Empty connector cells (cross arms between homes and path) ─
+  CTX.fillStyle='rgba(255,255,255,.03)';CTX.fillRect(x,y,C,C);
+  CTX.strokeStyle='rgba(255,255,255,.04)';CTX.lineWidth=.5;
+  CTX.strokeRect(x+.5,y+.5,C-1,C-1);CTX.lineWidth=1;
+}
+
+function drawCenter(){
+  const C=CELL;
+  const x6=6*C,x9=9*C,y6=6*C,y9=9*C;
+  const cx=7.5*C,cy=7.5*C;
+
+  // Background for center block
+  CTX.fillStyle='#12103a';
+  roundRect(CTX,x6,y6,C*3,C*3,C*.3);CTX.fill();
+
+  // Four colored triangles
+  const tris=[
+    {col:'red',   pts:[[x6,y6],[x9,y6],[cx,cy]]},
+    {col:'green', pts:[[x9,y6],[x9,y9],[cx,cy]]},
+    {col:'yellow',pts:[[x6,y9],[x9,y9],[cx,cy]]},
+    {col:'blue',  pts:[[x6,y6],[x6,y9],[cx,cy]]},
+  ];
+  tris.forEach(t=>{
+    const g=CTX.createRadialGradient(cx,cy,0,cx,cy,C*2);
+    g.addColorStop(0,CLIGHT[t.col]+'dd');
+    g.addColorStop(1,CDARK[t.col]+'99');
+    CTX.beginPath();
+    CTX.moveTo(t.pts[0][0],t.pts[0][1]);
+    CTX.lineTo(t.pts[1][0],t.pts[1][1]);
+    CTX.lineTo(t.pts[2][0],t.pts[2][1]);
+    CTX.closePath();
+    CTX.fillStyle=g;CTX.fill();
+    CTX.strokeStyle='rgba(0,0,0,.35)';CTX.lineWidth=1;CTX.stroke();CTX.lineWidth=1;
+  });
+
+  // Center star glow
+  const sg=CTX.createRadialGradient(cx,cy,0,cx,cy,C*.9);
+  sg.addColorStop(0,'rgba(255,255,255,.35)');
+  sg.addColorStop(1,'transparent');
+  CTX.fillStyle=sg;CTX.beginPath();CTX.arc(cx,cy,C*.9,0,Math.PI*2);CTX.fill();
+
+  // Gold star
+  drawGoldStar(cx,cy,C*.55,C*.22);
+
+  // Center circle
+  const cg=CTX.createRadialGradient(cx-C*.08,cy-C*.08,0,cx,cy,C*.22);
+  cg.addColorStop(0,'#fffde7');cg.addColorStop(.5,'#FFD700');cg.addColorStop(1,'#FF8F00');
+  CTX.beginPath();CTX.arc(cx,cy,C*.2,0,Math.PI*2);
+  CTX.fillStyle=cg;CTX.fill();
+  CTX.strokeStyle='rgba(255,255,255,.6)';CTX.lineWidth=1;CTX.stroke();CTX.lineWidth=1;
+}
+
+function drawGoldStar(x,y,r1,r2){
+  const n=8,step=Math.PI/n;
+  const g=CTX.createRadialGradient(x-r1*.2,y-r1*.2,0,x,y,r1);
+  g.addColorStop(0,'#FFFDE7');g.addColorStop(.4,'#FFD700');g.addColorStop(1,'#F57F17');
+  CTX.beginPath();
+  for(let i=0;i<n*2;i++){
+    const a=i*step-Math.PI/2;
+    const r=i%2===0?r1:r2;
+    i===0?CTX.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):CTX.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));
+  }
+  CTX.closePath();
+  CTX.fillStyle=g;CTX.fill();
+  CTX.strokeStyle='rgba(255,255,255,.4)';CTX.lineWidth=.8;CTX.stroke();CTX.lineWidth=1;
+}
+
+function drawSafeStar(x,y,r){
+  // Glowing safe square star marker
+  const glow=CTX.createRadialGradient(x,y,0,x,y,r*1.4);
+  glow.addColorStop(0,'rgba(255,215,0,.5)');glow.addColorStop(1,'transparent');
+  CTX.fillStyle=glow;CTX.beginPath();CTX.arc(x,y,r*1.4,0,Math.PI*2);CTX.fill();
+  drawGoldStar(x,y,r,r*.42);
+}
+
+function getRC(color,pos,ti){
+  if(pos===-1)return HBASE[color][ti];
+  if(pos===58){const o=[[7.05,7.05],[7.95,7.05],[7.05,7.95],[7.95,7.95]];return o[ti];}
+  if(pos>=52&&pos<=57)return HCOL[color][pos-52];
+  return PATH[(SIDX[color]+pos)%52];
+}
+
+function drawTokens(p){
+  p.tokens.forEach((pos,ti)=>{
+    const loc=getRC(p.color,pos,ti); if(!loc)return;
+    const[r,c]=loc, C=CELL;
+    const rad=pos===-1?C*.28:C*.36;
+    // Offsets within cell for home base (4 tokens)
+    let cx,cy;
+    if(pos===-1){
+      const ox=(ti%2===0?-.28:.28)*C, oy=(ti<2?-.28:.28)*C;
+      cx=c*C+C/2+ox; cy=r*C+C/2+oy;
+    } else if(pos===58){
+      const ox=(ti%2===0?-.3:.3)*C*.7, oy=(ti<2?-.3:.3)*C*.7;
+      cx=c*C+C/2+ox*C+ox; cy=r*C+C/2+oy*C+oy;
+      // Simplify: use fixed center offsets for finished tokens
+      const offsets=[[7.2*C,7.2*C],[7.8*C,7.2*C],[7.2*C,7.8*C],[7.8*C,7.8*C]];
+      cx=offsets[ti][0]; cy=offsets[ti][1];
+    } else {
+      cx=c*C+C/2; cy=r*C+C/2;
+    }
+
+    const isM=G.movable.includes(ti)&&G.players[G.curP].color===p.color;
+    const isDone=pos===58;
+    const col=p.color;
+
+    // ── Movable pulse ring ──────────────────────────────────────
+    if(isM){
+      CTX.beginPath();CTX.arc(cx,cy,rad+C*.12,0,Math.PI*2);
+      const pr=CTX.createRadialGradient(cx,cy,rad,cx,cy,rad+C*.12);
+      pr.addColorStop(0,'rgba(255,215,0,.7)');pr.addColorStop(1,'transparent');
+      CTX.fillStyle=pr;CTX.fill();
+    }
+
+    // ── Outer shadow ──────────────────────────────────────────
+    CTX.shadowColor='rgba(0,0,0,.6)';
+    CTX.shadowBlur=C*.25;CTX.shadowOffsetX=C*.04;CTX.shadowOffsetY=C*.06;
+
+    // ── Token base (3D sphere gradient) ──────────────────────
+    const base=CTX.createRadialGradient(
+      cx-rad*.3,cy-rad*.35, rad*.05,
+      cx, cy, rad
+    );
+    base.addColorStop(0,CLIGHT[col]);
+    base.addColorStop(.45,CMID[col]);
+    base.addColorStop(1,CDARK[col]);
+    CTX.beginPath();CTX.arc(cx,cy,rad,0,Math.PI*2);
+    CTX.fillStyle=base;CTX.fill();
+
+    // Clear shadow for remaining layers
+    CTX.shadowColor='transparent';CTX.shadowBlur=0;CTX.shadowOffsetX=0;CTX.shadowOffsetY=0;
+
+    // ── Outer ring ───────────────────────────────────────────
+    CTX.beginPath();CTX.arc(cx,cy,rad,0,Math.PI*2);
+    CTX.strokeStyle='rgba(255,255,255,.55)';CTX.lineWidth=C*.04;CTX.stroke();CTX.lineWidth=1;
+
+    // ── Shine highlight (top-left gloss) ─────────────────────
+    const shine=CTX.createRadialGradient(
+      cx-rad*.3,cy-rad*.38, 0,
+      cx-rad*.1,cy-rad*.15, rad*.55
+    );
+    shine.addColorStop(0,'rgba(255,255,255,.75)');
+    shine.addColorStop(.5,'rgba(255,255,255,.15)');
+    shine.addColorStop(1,'transparent');
+    CTX.beginPath();CTX.arc(cx,cy,rad,0,Math.PI*2);
+    CTX.fillStyle=shine;CTX.fill();
+
+    // ── Bottom shadow arc ────────────────────────────────────
+    CTX.beginPath();
+    CTX.arc(cx+rad*.08,cy+rad*.08,rad*.72,Math.PI*.3,Math.PI*1.1);
+    CTX.strokeStyle='rgba(0,0,0,.25)';CTX.lineWidth=rad*.3;CTX.stroke();CTX.lineWidth=1;
+
+    // ── Token number ─────────────────────────────────────────
+    const fs=Math.floor(rad*.78);
+    CTX.font='900 '+fs+'px "Exo 2",sans-serif';
+    CTX.textAlign='center';CTX.textBaseline='middle';
+    CTX.fillStyle='rgba(0,0,0,.55)';
+    CTX.fillText(ti+1,cx+.8,cy+.8);
+    CTX.fillStyle='#fff';
+    CTX.fillText(ti+1,cx,cy);
+
+    // ── Done: gold crown ring ────────────────────────────────
+    if(isDone){
+      CTX.beginPath();CTX.arc(cx,cy,rad+C*.07,0,Math.PI*2);
+      const cr=CTX.createLinearGradient(cx-rad,cy-rad,cx+rad,cy+rad);
+      cr.addColorStop(0,'#FFD700');cr.addColorStop(.5,'#fff');cr.addColorStop(1,'#FFA500');
+      CTX.strokeStyle=cr;CTX.lineWidth=C*.07;CTX.stroke();CTX.lineWidth=1;
+    }
+  });
+  CTX.textAlign='left';CTX.textBaseline='alphabetic';
+}
+
+// ============================================================
+//  GAME LOGIC
+// ============================================================
+function showDiceResult(val) {
+  const r=$('dval'), lbl=$('dval-lbl');
+  if(val==='' || val===null){
+    r.style.display='none'; lbl.style.display='';
+    lbl.textContent='Roll!'; return;
+  }
+  lbl.style.display='none';
+  r.style.display='block';
+  r.textContent=val;
+  r.classList.remove('pop');
+  void r.offsetWidth; // reflow to restart animation
+  r.classList.add('pop');
+}
+
+function rollDice(){const p=G.players[G.curP];if(G.rolled||p.isBot||p.finished)return;doRoll();}
+
+function doRoll(){
+  showDiceResult('');
+  const de=$('diceEl'); de.classList.remove('roll'); de.classList.add('shk');
+  let cnt=0,tot=8+Math.floor(Math.random()*5);
+  const iv=setInterval(()=>{
+    G.dice=Math.floor(Math.random()*6)+1;
+    de.textContent=['&#x2680;','&#x2681;','&#x2682;','&#x2683;','&#x2684;','&#x2685;'][G.dice-1];
+    if(++cnt>=tot){clearInterval(iv);de.classList.remove('shk');finishRoll();}
+  },75);
+}
+
+function finishRoll(){
+  G.rolled=true;
+  showDiceResult(G.dice);
+  const p=G.players[G.curP]; G.movable=getMovable(p,G.dice);
+  if(G.movable.length===0){setMsg(p.name+': '+G.dice+' - no moves!');setTimeout(nextTurn,900);}
+  else{setMsg(p.name+': '+G.dice+' - choose a token!');if(p.isBot)setTimeout(doBotTurn,G.botDelay);else drawBoard();}
+}
+
+function getMovable(p,d){
+  return p.tokens.reduce((mv,pos,ti)=>{
+    if(pos===58)return mv;
+    if(pos===-1){if(d===6)mv.push(ti);}
+    else if(pos+d<=58)mv.push(ti);
+    return mv;
+  },[]);
+}
+
+function handleClick(e){
+  const p=G.players[G.curP]; if(p.isBot||!G.rolled||!G.movable.length)return;
+  const rect=CV.getBoundingClientRect(),sx=CV.width/rect.width,sy=CV.height/rect.height;
+  const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy,C=CELL;
+  let best=-1,bd=Infinity;
+  G.movable.forEach(ti=>{
+    const loc=getRC(p.color,p.tokens[ti],ti); if(!loc)return;
+    const[r,c]=loc,ox=(ti%2===0?-1:1)*C*.17,oy=(ti<2?-1:1)*C*.17;
+    const d=Math.hypot(mx-(c*C+C/2+ox),my-(r*C+C/2+oy));
+    if(d<bd&&d<C*.85){bd=d;best=ti;}
+  });
+  if(best>=0) moveToken(G.curP,best,G.dice);
+}
+
+function moveToken(pi,ti,d){
+  const p=G.players[pi],old=p.tokens[ti];
+  const npos=old===-1?0:old+d;
+  if(npos>58)return;
+  p.tokens[ti]=npos; G.movable=[];
+  if(npos<52) checkCapture(pi,npos);
+  if(npos===58){
+    p.done++;
+    setMsg(p.name+' token '+(ti+1)+' reached home!');
+    if(p.done===4){
+      p.finished=true; G.phase='done'; drawBoard();
+      setTimeout(()=>autoCredit(p),600);
+      return;
+    }
+  }
+  drawBoard();
+  if(d===6&&npos!==58){
+    G.rolled=false; setMsg(p.name+' rolled 6 - roll again!');
+    const de=$('diceEl'); de.textContent='&#x1F3B2;'; de.classList.add('roll');
+    showDiceResult('↻');
+    if(p.isBot) setTimeout(doBotTurn,G.botDelay);
+  } else { setTimeout(nextTurn,380); }
+}
+
+function checkCapture(pi,npos){
+  const ap=G.players[pi],absThis=(SIDX[ap.color]+npos)%52;
+  if(SAFE.has(absThis))return;
+  G.players.forEach((p,i)=>{
+    if(i===pi)return;
+    p.tokens.forEach((pos,t)=>{
+      if(pos<0||pos>=52)return;
+      if((SIDX[p.color]+pos)%52===absThis){p.tokens[t]=-1;setMsg(ap.name+' captured '+p.name+'!');}
+    });
+  });
+}
+
+function nextTurn(){
+  let nxt=(G.curP+1)%G.players.length,tries=0;
+  while(G.players[nxt].finished&&tries<G.players.length){nxt=(nxt+1)%G.players.length;tries++;}
+  if(G.players.filter(p=>!p.finished).length<=1){
+    const w=G.players.find(p=>!p.finished)||G.players[0];
+    G.phase='done'; autoCredit(w); return;
+  }
+  G.curP=nxt; G.rolled=false; G.movable=[];
+  if(nxt===0) G.round++;
+  updateGameUI();
+  const p=G.players[nxt],de=$('diceEl'); de.textContent='&#x1F3B2;'; showDiceResult('');
+  if(p.isBot){de.classList.remove('roll');setMsg(p.name+' is thinking...');setTimeout(doBotTurn,G.botDelay);}
+  else{de.classList.add('roll');setMsg(p.name+' - roll the dice!');}
+}
+
+function doBotTurn(){
+  if(G.phase!=='playing')return;
+  const p=G.players[G.curP]; if(!p.isBot)return;
+  if(!G.rolled) doRoll();
+  else if(G.movable.length>0){const ti=G.movable[Math.floor(Math.random()*G.movable.length)];setTimeout(()=>moveToken(G.curP,ti,G.dice),280);}
+}
+
+function setMsg(m){$('gmsg').textContent=m;}
+
+function updateGameUI(){
+  const p=G.players[G.curP],col=CCSS[p.color];
+  $('td').style.background=col; $('td').style.color=col;
+  $('tlbl').textContent=p.name+"'s turn";
+  $('g-round').textContent='Round '+G.round;
+  const panel=$('ppanel'); panel.innerHTML='';
+  G.players.forEach((pl,i)=>{
+    const div=document.createElement('div');
+    div.className='pcard'+(i===G.curP?' active':'');
+    const toks=pl.tokens.map(t=>'<div class="ptok'+(t===-1?' home':t===58?' done':'')+'" style="background:'+CCSS[pl.color]+';border-color:'+CCSS[pl.color]+'"></div>').join('');
+    div.innerHTML='<div class="pcnm" style="color:'+CCSS[pl.color]+'">'+pl.name+'</div><div class="pcsc">'+pl.done+'/4 home</div><div class="pctoks">'+toks+'</div>';
+    panel.appendChild(div);
+  });
+  drawBoard();
+}
+
+window.addEventListener('resize',()=>{if(G.phase==='playing'){initBoard();updateGameUI();}});
+setMP(3); setBots(true); calcCr();
+document.querySelectorAll('.mov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+</script>
+</body>
+</html>
